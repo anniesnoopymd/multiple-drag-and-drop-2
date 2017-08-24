@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Multiple drag and drop using jQuery UI</title>
+	<link rel="stylesheet" href="drag2.css">
+</head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.jss"></script>
+<body>
+	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8/themes/mint-choc/jquery-ui.css">
+	<div class="demo">
+	    <p>Available Boxes (click to select multiple boxes)</p>    
+	    <ul id="draggable">
+	        <li>Box #1</li>
+	        <li>Box #2</li>
+	        <li>Box #3</li>
+	        <li>Box #4</li>
+	    </ul>    
+	    <p>My Boxes</p>
+	    <ul id="droppable">
+	    </ul>
+	    <p>Multiple Boxes</p>
+	    <ul id="third">
+	    </ul>
+	</div>
+	<script>
+		$(document).ready(function() {
+
+    var selectedClass = 'ui-state-highlight',
+        clickDelay = 600,
+        // click time (milliseconds)
+        lastClick, diffClick; // timestamps
+
+    $("#draggable li")
+    // Script to deferentiate a click from a mousedown for drag event
+    .bind('mousedown mouseup', function(e) {
+        if (e.type == "mousedown") {
+            lastClick = e.timeStamp; // get mousedown time
+        } else {
+            diffClick = e.timeStamp - lastClick;
+            if (diffClick < clickDelay) {
+                // add selected class to group draggable objects
+                $(this).toggleClass(selectedClass);
+            }
+        }
+    })
+    .draggable({
+        revertDuration: 10,
+        // grouped items animate separately, so leave this number low
+        containment: '.demo',
+        start: function(e, ui) {
+            ui.helper.addClass(selectedClass);
+        },
+        stop: function(e, ui) {
+            // reset group positions
+            $('.' + selectedClass).css({
+                top: 0,
+                left: 0
+            });
+        },
+        drag: function(e, ui) {
+            // set selected group position to main dragged object
+            // this works because the position is relative to the starting position
+            $('.' + selectedClass).css({
+                top: ui.position.top,
+                left: ui.position.left
+            });
+        }
+    });
+
+    $("#droppable, #draggable, #third").sortable().droppable({
+        drop: function(e, ui) {
+            $('.' + selectedClass).appendTo($(this)).add(ui.draggable) // ui.draggable is appended by the script, so add it after
+            .removeClass(selectedClass).css({
+                top: 0,
+                left: 0
+            });
+        }
+    });
+
+});
+	</script>
+</body>
+</html>
